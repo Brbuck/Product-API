@@ -7,7 +7,7 @@ module.exports = {
       return res.json(products);
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: "Internal server error" });
+      return res.status(500).json({ msg: "Internal server error" });
     }
   },
   async create(req, res) {
@@ -15,17 +15,19 @@ module.exports = {
     const productExist = await Product.findOne({ description_product });
 
     if (productExist) {
-      res.status(400).json({ error: "Produto já existe!!" });
+      res.status(400).json({ msg: "Product already exists!!" });
     }
 
+    const newProduct = new Product({
+      name_product,
+      description_product,
+      price,
+      stock,
+    });
     try {
-      const newProduct = await Product.create({
-        name_product,
-        description_product,
-        price,
-        stock,
-      });
-      res.status(201).json(newProduct);
+      await newProduct.save();
+
+      res.status(201).json({ msg: "Product was created successfuly!" });
     } catch (error) {
       res.status(400).json(error);
     }
@@ -41,7 +43,7 @@ module.exports = {
       return res.json(product);
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: "Internal server error" });
+      return res.status(500).json({ msg: "Internal server error" });
     }
   },
   async update(req, res) {
@@ -49,7 +51,7 @@ module.exports = {
     const product = await Product.findById(id);
 
     if (!product) {
-      res.status(400).json({ error: "Produto não existe!!" });
+      res.status(400).json({ msg: "Product does not exist in the system!!" });
     }
     product.name_product = req.body.name_product || product.name_product;
     product.description_product =
@@ -59,7 +61,8 @@ module.exports = {
 
     try {
       const updateProdut = await product.save();
-      res.status(201).json(updateProdut);
+      res.status(201).json({ msg: "Product update successfuly" });
+      console.log(updateProdut)
     } catch (error) {
       res.status(400).json(error);
     }
@@ -75,10 +78,10 @@ module.exports = {
 
       await product.deleteOne();
 
-      return res.status(200).json();
+      return res.status(200).json({ msg: "Product delete successfuly" });
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: "Internal server error" });
+      return res.status(500).json({ msg: "Internal server error" });
     }
   },
 };
